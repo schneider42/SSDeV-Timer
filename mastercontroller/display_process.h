@@ -26,4 +26,5 @@ void display_init(void);
 void display_tick(void);
 void display_process(void);
 void display_data(uint8_t channel, uint8_t *data, uint8_t len); 
+void display_setPressCount(uint8_t table, uint8_t presses);
 #endif

@@ -27,6 +27,6 @@
 void bus_init(void);
 void bus_tick(void);
 void bus_process(void);
-void bus_reply(uint8_t channel, uint8_t cmd,
+void bus_send(uint8_t channel, uint8_t cmd,
                 uint8_t *data, uint8_t len);
 #endif

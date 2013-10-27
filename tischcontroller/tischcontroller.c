@@ -38,7 +38,6 @@ void tischcontroller_init(void)
 
 void tischcontroller_tick(void)
 {
-    time_tick();
     buttons_tick();
     bus_tick();
     control_tick();
@@ -48,6 +47,7 @@ void tischcontroller_tick(void)
 void tischcontroller_process(void)
 {
     bus_process();
+    control_tick();
     display_process();
 }
 

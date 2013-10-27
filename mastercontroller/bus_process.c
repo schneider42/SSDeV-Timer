@@ -48,10 +48,11 @@ void bus_process(void)
     }
 }
 
-void bus_reply(uint8_t address, uint8_t cmd,
+void bus_send(uint8_t address, uint8_t cmd,
                 uint8_t *data, uint8_t len)
 {
     packet_t p;
+    p.cmd = cmd;
     memcpy(p.data, data, len);
     packet_setCRC(&p);
     bus_sendFrame(address, (uint8_t *)&p, sizeof(p));

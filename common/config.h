@@ -34,9 +34,5 @@
 #define BUS_nRX_PORT  D
 #define BUS_nRX_PIN   5
 
-#define DOOR_MODEL_1      0
-#define DOOR_MODEL_2      1
-#define DOOR_MODEL_MOCK   2
-
 #endif
 

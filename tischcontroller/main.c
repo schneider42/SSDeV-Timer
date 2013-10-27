@@ -23,7 +23,7 @@ int main(void)
    
     while( 1 ){
         if( timer1_timebase ){
-            timer1_timebase--;
+            timer1_timebase = 0;
             tischcontroller_tick();
         }
         tischcontroller_process();

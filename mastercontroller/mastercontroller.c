@@ -45,7 +45,6 @@ void mastercontroller_tick(void)
     buttons_tick();
     display_tick();
     control_tick();
-    time_tick();
 }
 
 void mastercontroller_process(void)

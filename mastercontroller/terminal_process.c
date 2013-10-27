@@ -48,8 +48,7 @@ void terminal_tick(void)
         struct time *t = time_getTime();
         time_format(t, buf);
         terminal_puts(buf);
-        lcd_fill(0);
-        font_renders(buf, 0, 0);
+        font_renders(buf, 0, 50);
         lcd_display();
 
 

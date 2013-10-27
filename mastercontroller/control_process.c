@@ -23,89 +23,54 @@
 #include "packet.h"
 #include "time_process.h"
 #include "bus_process.h"
+#include "display_process.h"
 #include "command.h"
 
 #include <stdint.h>
 #include <string.h>
-#define BUTTONS_COUNT   12
-#define PRESSES_COUNT   5
 
-struct button_press {
-    uint32_t timestamp;
-    uint8_t button;
-};
+#define ADDRESS_COUNT   2
 
-struct button_press button_presses[BUTTONS_COUNT * PRESSES_COUNT];
-uint8_t presses;
-
-#define ELEMENTS(x) (sizeof(x) / sizeof(x[0]))
-
-static void reset_presses(void)
-{
-    uint8_t i;
-    for(i = 0; i < ELEMENTS(button_presses); i++) {
-        button_presses[i].timestamp = 0;
-        button_presses[i].button = 0;
-    }
-    presses = 0;
-}
+static uint8_t state;
+static uint8_t next_address;
 
 void control_init(void)
 {
-    reset_presses();
+    state = 0;
+    next_address = MASTER_ADDRESS + 1;
 }
 
 void control_tick(void)
 {
-}
-
-static void control_buttonPressed(uint8_t button)
-{
-    struct time *t = time_getTime();
-    uint8_t i;
-    for(i = 0; i < ELEMENTS(button_presses); i++) {
-        if(button_presses[i].button == button) {
-            if(t->timestamp - button_presses[i].timestamp < 1000) {
-                return;
-            }
+    static uint16_t tick = 0;
+    if(tick++ == 5) {
+        switch(state) {
+            case 0:
+                bus_send(next_address, CMD_GET_PRESS_COUNT, NULL, 0);
+                next_address++;
+                if(next_address == MASTER_ADDRESS + ADDRESS_COUNT) {
+                    next_address = MASTER_ADDRESS + 1;
+                }
+                state = 0;
+            break;
         }
-    }
-
-    if(presses < ELEMENTS(button_presses)) {
-        button_presses[presses].timestamp = t->timestamp;
-        button_presses[presses].button = button;
-        presses++;
+        tick = 0;
     }
 }
 
-void control_process(void)
-{
-    uint32_t buttons = buttons_getPressed();
-    uint8_t i;
-    for(i = 0; i < 12; i++) {
-        if(buttons & 0x01) {
-            control_buttonPressed(i);
-        }
-        buttons >>= 1;
-    }
-}
 
 void control_newCommand(uint8_t address, uint8_t cmd,
                         uint8_t *data, uint8_t n)
 {
+    uint8_t p1;
+    uint8_t table = address - MASTER_ADDRESS;
     switch(cmd) {
         case CMD_PRESS_COUNT:
-            //bus_reply(CMD_PRESS_COUNT, (uint8_t *)&presses, 1);
+            p1 = data[0];
+            display_setPressCount(table, p1);
         break;
         case CMD_PRESS:
         break;
     }
 }
 
-#if 0
-static void control_sendState(void)
-{
-   packet_t p;
-   serial_sendPacket(&p);
-}
-#endif

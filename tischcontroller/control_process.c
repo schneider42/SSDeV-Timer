@@ -55,22 +55,23 @@ void control_init(void)
     reset_presses();
 }
 
-void control_tick(void)
-{
-}
-
 static void control_buttonPressed(uint8_t button)
 {
     struct time *t = time_getTime();
     uint8_t i;
+    uint8_t c = 0;
     for(i = 0; i < ELEMENTS(button_presses); i++) {
         if(button_presses[i].button == button) {
+            c++;
+            if(c == PRESSES_COUNT) {
+                return;
+            }
             if(t->timestamp - button_presses[i].timestamp < 1000) {
                 return;
             }
         }
     }
-
+    
     if(presses < ELEMENTS(button_presses)) {
         button_presses[presses].timestamp = t->timestamp;
         button_presses[presses].button = button;
@@ -78,7 +79,7 @@ static void control_buttonPressed(uint8_t button)
     }
 }
 
-void control_process(void)
+void control_tick(void)
 {
     uint32_t buttons = buttons_getPressed();
     uint8_t i;

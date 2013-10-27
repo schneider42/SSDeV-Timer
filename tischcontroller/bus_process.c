@@ -23,6 +23,7 @@
 #include "config.h"
 #include "packet.h"
 #include "control_process.h"
+
 #include <stdint.h>
 #include <string.h>
 
@@ -43,7 +44,7 @@ void bus_process(void)
     uint8_t channel = bus_readFrame();
     uint8_t len = bus_getMessageLen();
     if( len && channel ){
-        if(channel == MASTER_ID) {
+        if(channel == NODE_ID) {
             packet_t *p = (packet_t *)bus_getMessage();
             if(packet_checkCRC(p)) {
                 control_newCommand(p->cmd,
@@ -56,6 +57,7 @@ void bus_process(void)
 void bus_reply(uint8_t cmd, uint8_t *data, uint8_t len)
 {
     packet_t p;
+    p.cmd = cmd;
     memcpy(p.data, data, len);
     packet_setCRC(&p);
     bus_sendFrame(NODE_ID, (uint8_t *)&p, sizeof(p));

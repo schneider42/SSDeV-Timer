@@ -19,6 +19,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "timer1.h"
+#include "time_process.h"
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -28,6 +29,7 @@ volatile uint8_t timer1_timebase = 0;
 ISR(TIMER1_COMPA_vect)
 {
     timer1_timebase++;
+    time_tick();
 }
 
 void timer1_init(void)
