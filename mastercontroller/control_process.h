@@ -30,4 +30,6 @@ void control_process(void);
 void control_newCommand(uint8_t address, uint8_t cmd,
                         uint8_t *data, uint8_t n);
 
+uint8_t control_getPressesCount(uint8_t table);
+struct button_press control_getPress(uint8_t table, uint8_t press_number);
 #endif

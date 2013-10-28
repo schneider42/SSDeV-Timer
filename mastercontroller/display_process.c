@@ -70,8 +70,20 @@ void display_process(void)
 void display_setPressCount(uint8_t table, uint8_t presses)
 {
     char buf[64];
-    sprintf(buf, "%u: %03u",  table, presses);
-    uint8_t y = table == 1 ? 0 : 30;
+    uint8_t y = 0;
+
+    sprintf(buf, "%u: %03u",  table + 1, presses);
+    switch(table) {
+        case 0:
+            y = 0;
+        break;
+        case 1:
+            y = 20;
+        break;
+        case 2:
+            y = 40;
+        break;
+    }
     font_renders(buf, 0, y);
     lcd_display();
 }

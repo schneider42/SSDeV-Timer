@@ -39,6 +39,9 @@ void terminal_handler_init(void)
 void terminal_puts(char *s)
 {
     while(*s) {
+        if(*s == '\n') {
+            uart1_putc('\r');
+        }
         uart1_putc(*s++);
     }
 }

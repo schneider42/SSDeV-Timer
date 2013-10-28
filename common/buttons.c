@@ -8,7 +8,6 @@
 
 #include <stdbool.h>
 
-#define BUTTONS_COUNT 15
 #define BUTTONS_MAX_COUNT 32
 #define DEADTIME 10
 
@@ -33,13 +32,13 @@ uint16_t buttons_deadtime[BUTTONS_COUNT];
 
 static void process_change(struct button *b, uint8_t value)
 {
-    if(value == 0 && !b->pressed && b->deadtime == 0) {
+    if(value == 0 && b->deadtime == 0) {
         b->pressed = true;
         b->deadtime = DEADTIME;
         b->changed = true;
     }
 
-    if(value && b->pressed && b->deadtime == 0) {
+    if(value && b->deadtime == 0) {
         b->pressed = false;
         b->deadtime = DEADTIME;
     }

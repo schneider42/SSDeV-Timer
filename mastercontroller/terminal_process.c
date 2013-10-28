@@ -23,8 +23,10 @@
 #include "buttons.h"
 #include "time_process.h"
 #include "time.h"
-#include "font_renderer.h"
-#include "lcd.h"
+//#include "font_renderer.h"
+//#include "lcd.h"
+#include "buttons.h"
+#include "control_process.h"
 
 #include <string.h>
 
@@ -33,6 +35,17 @@ void terminal_init(void)
     terminal_handler_init();
     terminal_setCursorPos(0, 5);
     terminal_puts("Master Controller");
+    terminal_setCursorPos(3, 0);
+    terminal_printf("Tisch\tPlatz\tZeit\t");
+}
+
+void terminal_showTime(uint8_t table, struct button_press *press)
+{
+    char buf[64];
+    struct time press_time;
+    time_setFromTimestamp(&press_time, press->timestamp);
+    time_format(&press_time, buf);
+    terminal_printf("%u\t%u\t%s\n", table + 1, press->button + 1, buf);
 }
 
 void terminal_tick(void)
@@ -40,27 +53,23 @@ void terminal_tick(void)
     static uint32_t s = 0;
     //static uint32_t t = 0;
     char buf[64];
-
+    
     s++;
-    if(s == 10) {
-        terminal_setCursorPos(3, 5);
+    if(s == 50) {
+        terminal_setCursorPos(0, 25);
         s = 0;
         struct time *t = time_getTime();
         time_format(t, buf);
         terminal_puts(buf);
-        font_renders(buf, 0, 50);
-        lcd_display();
+        terminal_setCursorPos(4, 0);
 
-
-        uint32_t buttons = buttons_getPressed();
-        uint8_t i;
-
-        for(i = 0; i < 32; i++) {
-            terminal_setCursorPos(i + 4, 0);
-            if(buttons & (1 << i)) {
-                terminal_printf("pressed");
-            } else {
-                terminal_printf("       ");
+        uint8_t table, press_number;
+        
+        for(table = 0; table < TABLE_COUNT; table++) {
+            uint8_t presses_count = control_getPressesCount(table);
+            for(press_number = 0; press_number < presses_count; press_number++) {
+                struct button_press press = control_getPress(table, press_number);
+                terminal_showTime(table, &press);
             }
         }
     }

@@ -44,22 +44,26 @@ void time_set(struct time *t)
 
 void time_setFromTimestamp(struct time *t, uint32_t timestamp)
 {
-    t->seconds = timestamp / 1000;
-    t->millis = timestamp - t->seconds * 1000;
-    t->minutes = t->seconds / 60;
-    t->seconds = t->seconds - t->minutes * 60;
-    t->hours = t->minutes / 60;
-    t->minutes = t->minutes - t->hours * 60;
+    t->hours = timestamp / (1000UL * 60 * 60);
+    timestamp -= t->hours * (1000UL * 60 * 60);
+
+    t->minutes = timestamp / (1000UL * 60);
+    timestamp -= t->minutes * (1000UL * 60);
+
+    t->seconds = timestamp / (1000UL);
+    timestamp -= t->seconds * (1000UL);
+
+    t->millis = timestamp;
 }
 
 void time_format(struct time *t, char *buffer)
 {
-    uint8_t tenths = (t->millis+50) / 100;
+    //uint8_t tenths = (t->millis+50) / 100;
     uint8_t seconds = t->seconds;
     uint8_t minutes = t->minutes;
     uint8_t hours = t->hours;
 
-    if(tenths == 10) {
+    /*if(tenths == 10) {
         tenths = 0;
         seconds++;
         if(seconds == 60) {
@@ -70,7 +74,7 @@ void time_format(struct time *t, char *buffer)
                 hours++;
             }
         }
-    }
+    }*/
     sprintf(buffer, "%01u:%02u:%02u",
         hours, minutes, seconds);
 }

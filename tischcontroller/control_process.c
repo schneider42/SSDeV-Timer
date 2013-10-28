@@ -24,16 +24,10 @@
 #include "time_process.h"
 #include "bus_process.h"
 #include "command.h"
+#include "config.h"
 
 #include <stdint.h>
 #include <string.h>
-#define BUTTONS_COUNT   12
-#define PRESSES_COUNT   5
-
-struct button_press {
-    uint32_t timestamp;
-    uint8_t button;
-};
 
 struct button_press button_presses[BUTTONS_COUNT * PRESSES_COUNT];
 uint8_t presses;
@@ -61,7 +55,7 @@ static void control_buttonPressed(uint8_t button)
     uint8_t i;
     uint8_t c = 0;
     for(i = 0; i < ELEMENTS(button_presses); i++) {
-        if(button_presses[i].button == button) {
+        if(button_presses[i].button == button && button_presses[i].timestamp != 0) {
             c++;
             if(c == PRESSES_COUNT) {
                 return;
@@ -83,6 +77,7 @@ void control_tick(void)
 {
     uint32_t buttons = buttons_getPressed();
     uint8_t i;
+    // We only care about the first 12 buttons
     for(i = 0; i < 12; i++) {
         if(buttons & 0x01) {
             control_buttonPressed(i);
@@ -94,6 +89,7 @@ void control_tick(void)
 void control_newCommand(uint8_t cmd, uint8_t *data, uint8_t n)
 {
     uint8_t p1;
+
     switch(cmd) {
         case CMD_GET_PRESS_COUNT:
             bus_reply(CMD_PRESS_COUNT, (uint8_t *)&presses, 1);
@@ -101,9 +97,10 @@ void control_newCommand(uint8_t cmd, uint8_t *data, uint8_t n)
         case CMD_GET_PRESS:
             p1 = data[0];
             if(p1 < presses) {
-                bus_reply(CMD_PRESS,
-                    (uint8_t *)&button_presses[p1],
-                    sizeof(button_presses[p1]));
+                memcpy(data + 1, &button_presses[p1],
+                        sizeof(button_presses[p1]));
+                bus_reply(CMD_PRESS, data,
+                    sizeof(button_presses[p1]) + 1);
             }
         break;
         case CMD_RESET_PRESSES:

@@ -25,11 +25,13 @@
 #include "bus_process.h"
 #include "display_process.h"
 #include "command.h"
+#include "config.h"
 
 #include <stdint.h>
 #include <string.h>
 
-#define ADDRESS_COUNT   2
+struct button_press button_presses[TABLE_COUNT][BUTTONS_COUNT * PRESSES_COUNT];
+uint8_t presses_count[TABLE_COUNT];
 
 static uint8_t state;
 static uint8_t next_address;
@@ -48,7 +50,7 @@ void control_tick(void)
             case 0:
                 bus_send(next_address, CMD_GET_PRESS_COUNT, NULL, 0);
                 next_address++;
-                if(next_address == MASTER_ADDRESS + ADDRESS_COUNT) {
+                if(next_address == MASTER_ADDRESS + TABLE_COUNT + 1) {
                     next_address = MASTER_ADDRESS + 1;
                 }
                 state = 0;
@@ -58,18 +60,48 @@ void control_tick(void)
     }
 }
 
+uint8_t control_getPressesCount(uint8_t table)
+{
+    return presses_count[table];
+}
+
+struct button_press control_getPress(uint8_t table, uint8_t press_number)
+{
+    return button_presses[table][press_number];
+}
+
+static void cmd_press_count(uint8_t address, uint8_t table, uint8_t *data, uint8_t n)
+{
+    uint8_t press_count = data[0];
+    display_setPressCount(table, press_count);
+    if(press_count > presses_count[table]) {
+        bus_send(address, CMD_GET_PRESS, &presses_count[table], 1);
+    }
+}
+
+static void cmd_press(uint8_t address, uint8_t table, uint8_t *data, uint8_t n)
+{
+    struct button_press p; 
+    uint8_t press = data[0];
+    // I don't want to deal with aliasing...
+    memcpy(&p, data + 1, sizeof(p)); 
+    button_presses[table][press] = p;
+    if(presses_count[table] == press) {
+        presses_count[table]++;
+    }
+}
 
 void control_newCommand(uint8_t address, uint8_t cmd,
                         uint8_t *data, uint8_t n)
 {
-    uint8_t p1;
-    uint8_t table = address - MASTER_ADDRESS;
+    uint8_t table = address - MASTER_ADDRESS - 1;
+
     switch(cmd) {
         case CMD_PRESS_COUNT:
-            p1 = data[0];
-            display_setPressCount(table, p1);
+            cmd_press_count(address, table, data, n);
         break;
         case CMD_PRESS:
+            cmd_press(address, table, data, n);
         break;
     }
 }

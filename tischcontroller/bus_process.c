@@ -28,7 +28,7 @@
 #include <string.h>
 
 #define MASTER_ID   1
-#define NODE_ID     2
+#define NODE_ID     4
 
 void bus_init(void)
 {

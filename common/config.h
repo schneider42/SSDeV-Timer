@@ -34,5 +34,7 @@
 #define BUS_nRX_PORT  D
 #define BUS_nRX_PIN   5
 
+#define TABLE_COUNT     3
+#define PRESSES_COUNT   5
 #endif
 
