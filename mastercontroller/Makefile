@@ -96,8 +96,10 @@ control_process.c \
 ../common/time.c \
 ../common/time_process.c \
 ../common/font_renderer.c \
+../common/sort.c \
 display_process.c \
-control_process.c
+control_process.c \
+press_handler.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)

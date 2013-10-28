@@ -6,6 +6,7 @@
 struct button_press {
     uint32_t timestamp;
     uint8_t button;
+    uint8_t table;
 }__attribute__((packed));
 
 #define BUTTONS_COUNT 15

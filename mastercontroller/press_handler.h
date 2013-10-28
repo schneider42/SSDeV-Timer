@@ -18,16 +18,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CONTROL_PROCESS_H_
-#define CONTROL_PROCESS_H_
+#ifndef PRESS_HANDLER_H_
+#define PRESS_HANDLER_H_
+#include "buttons.h"
+#include "config.h"
 
 #include <stdint.h>
-#include "packet.h"
+#include <string.h>
 
-void control_init(void);
-void control_tick(void);
-void control_process(void);
-void control_newCommand(uint8_t address, uint8_t cmd,
-                        uint8_t *data, uint8_t n);
+void press_init(void);
+uint8_t press_getPressesCount(uint8_t table);
+uint8_t press_getTotalPressesCount(void);
+const struct button_press *press_getSortedPress(uint8_t press_number);
+void press_addPress(uint8_t table, uint8_t press_number, const struct button_press *press);
 
 #endif

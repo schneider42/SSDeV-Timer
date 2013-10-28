@@ -22,6 +22,9 @@
 #define BUS_PROCESS_H_
 #include "packet.h"
 
+#define MASTER_ADDRESS   1
+#define NODE_ADDRESS     (MASTER_ADDRESS + TABLE_NUMBER + 1)
+
 void bus_init(void);
 void bus_tick(void);
 void bus_process(void);

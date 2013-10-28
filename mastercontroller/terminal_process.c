@@ -27,6 +27,7 @@
 //#include "lcd.h"
 #include "buttons.h"
 #include "control_process.h"
+#include "press_handler.h"
 
 #include <string.h>
 
@@ -36,16 +37,16 @@ void terminal_init(void)
     terminal_setCursorPos(0, 5);
     terminal_puts("Master Controller");
     terminal_setCursorPos(3, 0);
-    terminal_printf("Tisch\tPlatz\tZeit\t");
+    terminal_printf("Nummer\tTisch\tPlatz\tZeit\t");
 }
 
-void terminal_showTime(uint8_t table, struct button_press *press)
+void terminal_showTime(const struct button_press *press)
 {
     char buf[64];
     struct time press_time;
     time_setFromTimestamp(&press_time, press->timestamp);
     time_format(&press_time, buf);
-    terminal_printf("%u\t%u\t%s\n", table + 1, press->button + 1, buf);
+    terminal_printf("%u\t%u\t%s\n", press->table + 1, press->button + 1, buf);
 }
 
 void terminal_tick(void)
@@ -63,14 +64,13 @@ void terminal_tick(void)
         terminal_puts(buf);
         terminal_setCursorPos(4, 0);
 
-        uint8_t table, press_number;
+        uint8_t press_number;
         
-        for(table = 0; table < TABLE_COUNT; table++) {
-            uint8_t presses_count = control_getPressesCount(table);
-            for(press_number = 0; press_number < presses_count; press_number++) {
-                struct button_press press = control_getPress(table, press_number);
-                terminal_showTime(table, &press);
-            }
+        uint8_t total_presses_count = press_getTotalPressesCount();
+        for(press_number = 0; press_number < total_presses_count; press_number++) {
+            const struct button_press *press = press_getSortedPress(press_number);
+            terminal_printf("%u\t", press_number + 1);
+            terminal_showTime(press);
         }
     }
 }

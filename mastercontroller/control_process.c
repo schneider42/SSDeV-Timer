@@ -25,6 +25,7 @@
 #include "bus_process.h"
 #include "display_process.h"
 #include "command.h"
+#include "press_handler.h"
 #include "config.h"
 
 #include <stdint.h>
@@ -60,35 +61,27 @@ void control_tick(void)
     }
 }
 
-uint8_t control_getPressesCount(uint8_t table)
-{
-    return presses_count[table];
-}
-
-struct button_press control_getPress(uint8_t table, uint8_t press_number)
-{
-    return button_presses[table][press_number];
-}
-
-static void cmd_press_count(uint8_t address, uint8_t table, uint8_t *data, uint8_t n)
+static void cmd_press_count(uint8_t address, uint8_t table,
+                            uint8_t *data, uint8_t n)
 {
     uint8_t press_count = data[0];
+    uint8_t known_press_count = press_getPressesCount(table);
+
     display_setPressCount(table, press_count);
-    if(press_count > presses_count[table]) {
-        bus_send(address, CMD_GET_PRESS, &presses_count[table], 1);
+    if(press_count > known_press_count) {
+        bus_send(address, CMD_GET_PRESS, &known_press_count, 1);
     }
 }
 
-static void cmd_press(uint8_t address, uint8_t table, uint8_t *data, uint8_t n)
+static void cmd_press(uint8_t address, uint8_t table,
+                        uint8_t *data, uint8_t n)
 {
     struct button_press p; 
-    uint8_t press = data[0];
+    uint8_t press_number = data[0];
+
     // I don't want to deal with aliasing...
     memcpy(&p, data + 1, sizeof(p)); 
-    button_presses[table][press] = p;
-    if(presses_count[table] == press) {
-        presses_count[table]++;
-    }
+    press_addPress(table, press_number, &p);
 }
 
 void control_newCommand(uint8_t address, uint8_t cmd,

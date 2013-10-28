@@ -69,6 +69,7 @@ static void control_buttonPressed(uint8_t button)
     if(presses < ELEMENTS(button_presses)) {
         button_presses[presses].timestamp = t->timestamp;
         button_presses[presses].button = button;
+        button_presses[presses].table = TABLE_NUMBER;
         presses++;
     }
 }

@@ -27,9 +27,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#define MASTER_ID   1
-#define NODE_ID     4
-
 void bus_init(void)
 {
     bus_handler_init();
@@ -44,7 +41,7 @@ void bus_process(void)
     uint8_t channel = bus_readFrame();
     uint8_t len = bus_getMessageLen();
     if( len && channel ){
-        if(channel == NODE_ID) {
+        if(channel == NODE_ADDRESS) {
             packet_t *p = (packet_t *)bus_getMessage();
             if(packet_checkCRC(p)) {
                 control_newCommand(p->cmd,
@@ -60,7 +57,7 @@ void bus_reply(uint8_t cmd, uint8_t *data, uint8_t len)
     p.cmd = cmd;
     memcpy(p.data, data, len);
     packet_setCRC(&p);
-    bus_sendFrame(NODE_ID, (uint8_t *)&p, sizeof(p));
+    bus_sendFrame(NODE_ADDRESS, (uint8_t *)&p, sizeof(p));
 }
 
 
