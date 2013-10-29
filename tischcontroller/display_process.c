@@ -24,45 +24,24 @@
 #include "font_renderer.h"
 #include "time.h"
 #include "time_process.h"
+#include "config.h"
 
 #include <stdint.h>
+#include <stdio.h>
 
 void display_init(void)
 {
+    char buf[64];
     lcd_init();
     lcd_fill(0);
-    int i;
-    for(i=0;i<30;i++){
-        lcd_setPixel(i,i,true);
-    }
-    //font_render('\\', 0, 0);
-    //font_renders("foo bar", 20, 0);
+    sprintf(buf, "Tisch: %u", TABLE_NUMBER + 1); font_renders(buf, 0, 0);
+    sprintf(buf, "Zeit:"); font_renders(buf, 0, 16);
     lcd_display();
-    //while(1);
-#if 0
-    //static uint8_t r = 0;
-    while(1){
-        //if( r == 0 )
-        //    r = 0xff;
-        //else
-        //    r = 0;
-        //lcd_fill(r);
-        lcd_fill(0xAA);
-        lcd_display();
-        //lcdhal_delayms(500);
-        //lcd_startStream();
-
-        //while(x--)
-        //    lcd_stream(r,0,0);
-        //lcd_stopStream();
-    }
-#endif
 }
 
 void display_tick(void)
 {
     static uint32_t s = 0;
-    //static uint32_t t = 0;
     char buf[64];
 
     s++;
@@ -70,8 +49,7 @@ void display_tick(void)
         s = 0;
         struct time *t = time_getTime();
         time_format(t, buf);
-        lcd_fill(0);
-        font_renders(buf, 0, 0);
+        font_renders(buf, 0, 32);
         lcd_display();
     }
 }
