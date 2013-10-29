@@ -29,3 +29,9 @@ struct time* time_getTime(void)
     return &time;
 }
 
+void time_setTime(const struct time *time)
+{
+    cli();
+    itime = *time;
+    sei();
+}

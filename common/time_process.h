@@ -5,5 +5,6 @@
 void time_init(void);
 void time_tick(void);
 struct time* time_getTime(void);
+void time_setTime(const struct time *time);
 
 #endif

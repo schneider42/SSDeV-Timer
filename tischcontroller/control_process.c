@@ -87,6 +87,13 @@ void control_tick(void)
     }
 }
 
+static void cmd_setTime(uint8_t *data, uint8_t n)
+{
+    struct time time;
+    memcpy(&time, data, sizeof(time));
+    time_setTime(&time);
+}
+
 void control_newCommand(uint8_t cmd, uint8_t *data, uint8_t n)
 {
     uint8_t p1;
@@ -108,14 +115,8 @@ void control_newCommand(uint8_t cmd, uint8_t *data, uint8_t n)
             reset_presses();
         break;
         case CMD_SET_TIME:
+            cmd_setTime(data, n);
         break;
     }
 }
 
-#if 0
-static void control_sendState(void)
-{
-   packet_t p;
-   serial_sendPacket(&p);
-}
-#endif
