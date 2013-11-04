@@ -27,6 +27,7 @@
 #include "command.h"
 #include "press_handler.h"
 #include "config.h"
+#include "terminal_process.h"
 
 #include <stdint.h>
 #include <string.h>
