@@ -30,4 +30,8 @@ void control_process(void);
 void control_newCommand(uint8_t address, uint8_t cmd,
                         uint8_t *data, uint8_t n);
 
+const struct time * control_getTargetTime(void);
+
+void control_getStateName(char *buf);
+
 #endif

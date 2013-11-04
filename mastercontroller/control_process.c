@@ -34,27 +34,112 @@
 struct button_press button_presses[TABLE_COUNT][BUTTONS_COUNT * PRESSES_COUNT];
 uint8_t presses_count[TABLE_COUNT];
 
-static uint8_t state;
+static enum {
+    STOP,
+    SET_TIME,
+    RUN,
+    HOLD
+} state;
+
+const char * states[] = { "STOP    ",
+                        "SET_TIME",
+                        "RUN     ",
+                        "HOLD    "};
+
 static uint8_t next_address;
+static struct time target_time;
+static struct time step_time;
+
+void control_getStateName(char *buf)
+{
+    strcpy(buf, states[state]);
+}
 
 void control_init(void)
 {
+    press_init();
+
     state = 0;
     next_address = MASTER_ADDRESS + 1;
+    target_time.timestamp = 1000 * 60UL * 5;
+    time_setFromTimestamp(&target_time);
+
+    step_time.timestamp = 1000 * 60UL;
+    time_setFromTimestamp(&step_time);
+}
+
+void rotate_address(void)
+{
+    next_address++;
+    if(next_address == MASTER_ADDRESS + TABLE_COUNT + 1) {
+        next_address = MASTER_ADDRESS + 1;
+    }
 }
 
 void control_tick(void)
 {
     static uint16_t tick = 0;
+    struct time temp_time;
+
     if(tick++ == 5) {
+        uint32_t buttons = buttons_getPressed();
         switch(state) {
-            case 0:
-                bus_send(next_address, CMD_GET_PRESS_COUNT, NULL, 0);
-                next_address++;
-                if(next_address == MASTER_ADDRESS + TABLE_COUNT + 1) {
-                    next_address = MASTER_ADDRESS + 1;
+            case STOP:
+                if(buttons & BUTTON_1) {
+                    state = SET_TIME;
+                }else if(buttons & BUTTON_2) {
+                    time_start();
+                    press_init();
+                    terminal_init();
+                    state = RUN;
+                }else{
+                    temp_time.timestamp = 0;
+                    time_setFromTimestamp(&temp_time);
+                    time_stop();
+                    time_setTime(&temp_time);
+                    bus_send(BROADCAST_ADDRESS, CMD_SET_TIME, (uint8_t*) time_getTime(), sizeof(struct time));
+                    bus_send(BROADCAST_ADDRESS, CMD_RESET_PRESSES, NULL, 0); 
+                    state = STOP;
                 }
-                state = 0;
+            break;
+            case SET_TIME:
+                if(buttons & BUTTON_1) {
+                    state = STOP;
+                }else if(buttons & BUTTON_2) {
+                    time_add(&target_time, &step_time);
+                    state = SET_TIME;
+                }else if(buttons & BUTTON_3) {
+                    time_subtract(&target_time, &step_time);
+                    state = SET_TIME;
+                }
+            break;
+            case RUN:
+                if(buttons & BUTTON_1) {
+                    state = STOP;
+                }else if(buttons & BUTTON_3) {
+                    state = HOLD;
+                }else{
+                    bus_send(BROADCAST_ADDRESS, CMD_SET_TIME, (uint8_t*) time_getTime(), sizeof(struct time));
+                    bus_send(next_address, CMD_GET_PRESS_COUNT, NULL, 0);
+                    rotate_address();
+                    if(time_getTime()->timestamp >= target_time.timestamp) {
+                        state = HOLD;
+                    }else{
+                        state = RUN;
+                    }
+                }
+            break;
+            case HOLD:
+                if(buttons & BUTTON_1) {
+                    state = STOP;
+                }else if(buttons & BUTTON_3) {
+                    time_start();
+                    state = RUN;
+                }else{
+                    time_stop();
+                    bus_send(BROADCAST_ADDRESS, CMD_SET_TIME, (uint8_t*) time_getTime(), sizeof(struct time));
+                    state = HOLD;
+                }
             break;
         }
         tick = 0;
@@ -99,3 +184,7 @@ void control_newCommand(uint8_t address, uint8_t cmd,
     }
 }
 
+const struct time * control_getTargetTime(void)
+{
+    return &target_time;
+}
