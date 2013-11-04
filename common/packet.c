@@ -22,12 +22,27 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include <util/crc16.h>
+
+static uint16_t calculate_crc(packet_t *p)
+{
+    uint8_t i;
+    uint16_t crc = 0xffff;
+    uint8_t *d = (uint8_t *)p;
+
+    for(i = 0; i < sizeof(packet_t) - 2; i++) {
+        crc = _crc16_update(crc, *d++);
+    }
+
+    return crc;
+}
 
 bool packet_checkCRC(packet_t *p)
 {
-    return true;
+    return calculate_crc(p) == p->crc;
 }
 
 void packet_setCRC(packet_t *p)
 {
+    p->crc = calculate_crc(p);
 }
