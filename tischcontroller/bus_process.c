@@ -41,7 +41,7 @@ void bus_process(void)
     uint8_t channel = bus_readFrame();
     uint8_t len = bus_getMessageLen();
     if( len && channel ){
-        if(channel == NODE_ADDRESS) {
+        if(channel == NODE_ADDRESS || channel == BROADCAST_ADDRESS) {
             packet_t *p = (packet_t *)bus_getMessage();
             if(packet_checkCRC(p)) {
                 control_newCommand(p->cmd,
