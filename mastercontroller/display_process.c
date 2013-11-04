@@ -22,6 +22,8 @@
 #include "lcd.h"
 #include "lcdhal.h"
 #include "font_renderer.h"
+#include "press_handler.h"
+#include "config.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -61,6 +63,19 @@ void display_init(void)
 
 void display_tick(void)
 {
+    static uint8_t s;
+    char buf[16];
+    uint8_t table;
+
+    if(s++ == 51) {
+        s = 0;
+        for(table = 0; table < TABLE_COUNT; table++) {
+            uint8_t press_count = press_getPressesCount(table);
+            sprintf(buf, "Tisch %u: %02u",  table + 1, press_count);
+            font_renders(buf, 0, table * 14);
+        }
+        lcd_display();
+    }
 }
 
 void display_process(void)
@@ -69,22 +84,6 @@ void display_process(void)
 
 void display_setPressCount(uint8_t table, uint8_t presses)
 {
-    char buf[64];
-    uint8_t y = 0;
 
-    sprintf(buf, "%u: %03u",  table + 1, presses);
-    switch(table) {
-        case 0:
-            y = 0;
-        break;
-        case 1:
-            y = 20;
-        break;
-        case 2:
-            y = 40;
-        break;
-    }
-    font_renders(buf, 0, y);
-    lcd_display();
 }
 
