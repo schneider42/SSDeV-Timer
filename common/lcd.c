@@ -100,7 +100,8 @@ void lcd_init(void)
     	 * 10: set x address (upper bits): X[6-4] = 0
     	 */
         static uint8_t initseq[]= { 0xE2,0xAF, // Display ON
-                             0xA1, // Mirror-X
+                             0xA0, // !Mirror-X
+                             0xC8, // Mirror-Y
                              0xA4, 0x2F, 0xB0, 0x10};
         uint8_t i = 0;
         while(i<sizeof(initseq)){
