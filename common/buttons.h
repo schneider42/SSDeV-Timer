@@ -11,6 +11,10 @@ struct button_press {
 
 #define BUTTONS_COUNT 15
 
+#define BUTTON_1    (1<<12)
+#define BUTTON_2    (1<<13)
+#define BUTTON_3    (1<<14)
+
 void buttons_init(void);
 uint32_t buttons_getPressed(void);
 void buttons_tick(void);
