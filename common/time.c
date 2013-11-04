@@ -11,7 +11,7 @@ void time_clear(struct time *t)
     t->hours = 0;
 }
 
-void time_add(struct time *t1, struct time *t2)
+void time_add(struct time *t1, const struct time *t2)
 {
     t1->timestamp += t2->timestamp;
 
@@ -36,14 +36,31 @@ void time_add(struct time *t1, struct time *t2)
     t1->hours += t2->hours;
 }
 
+void time_subtract(struct time *t1, const struct time *t2)
+{
+    if(t1->timestamp <= t2->timestamp){
+        t1->timestamp = 0;
+        t1->millis = 0;
+        t1->seconds = 0;
+        t1->minutes = 0;
+        t1->hours = 0;
+        return;
+    }
+
+    t1->timestamp -= t2->timestamp;
+    time_setFromTimestamp(t1);
+}
+
+
 void time_set(struct time *t)
 {
     t->timestamp = t->millis +
         1000 * (t->seconds + 60 * (t->minutes + 60 * t->hours));
 }
 
-void time_setFromTimestamp(struct time *t, uint32_t timestamp)
+void time_setFromTimestamp(struct time *t)
 {
+    uint32_t timestamp = t->timestamp;
     t->hours = timestamp / (1000UL * 60 * 60);
     timestamp -= t->hours * (1000UL * 60 * 60);
 
@@ -56,7 +73,7 @@ void time_setFromTimestamp(struct time *t, uint32_t timestamp)
     t->millis = timestamp;
 }
 
-void time_format(struct time *t, char *buffer)
+void time_format(const struct time *t, char *buffer)
 {
     //uint8_t tenths = (t->millis+50) / 100;
     uint8_t seconds = t->seconds;

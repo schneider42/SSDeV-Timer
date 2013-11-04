@@ -12,9 +12,10 @@ struct time {
 };
 
 void time_clear(struct time *t);
-void time_add(struct time *t1, struct time *t2);
+void time_add(struct time *t1, const struct time *t2);
 void time_set(struct time *t);
-void time_setFromTimestamp(struct time *t, uint32_t timestamp);
-void time_format(struct time *t, char *buffer);
+void time_setFromTimestamp(struct time *t);
+void time_format(const struct time *t, char *buffer);
+void time_subtract(struct time *t1, const struct time *t2);
 
 #endif
