@@ -34,19 +34,17 @@
 void terminal_init(void)
 {
     terminal_handler_init();
-    terminal_setCursorPos(0, 5);
-    terminal_puts("Master Controller");
-    terminal_setCursorPos(3, 0);
-    terminal_printf("Nummer\tTisch\tPlatz\tZeit\t");
+    terminal_reset();
+    terminal_setCursorMode(false);
 }
 
 void terminal_showTime(const struct button_press *press)
 {
     char buf[64];
-    struct time press_time;
-    time_setFromTimestamp(&press_time, press->timestamp);
+    struct time press_time = {.timestamp = press->timestamp};
+    time_setFromTimestamp(&press_time);
     time_format(&press_time, buf);
-    terminal_printf("%u\t%u\t%s\n", press->table + 1, press->button + 1, buf);
+    terminal_printf("%2u\t%2u\t%s\n", press->table + 1, press->button + 1, buf);
 }
 
 void terminal_tick(void)
@@ -57,19 +55,32 @@ void terminal_tick(void)
     
     s++;
     if(s == 50) {
-        terminal_setCursorPos(0, 25);
         s = 0;
-        struct time *t = time_getTime();
-        time_format(t, buf);
-        terminal_puts(buf);
-        terminal_setCursorPos(4, 0);
+        terminal_setCursorPos(0, 5);
+        terminal_printf("Master Controller");
+        terminal_setCursorPos(3, 0);
+        terminal_printf("Nummer\tTisch\tPlatz\tZeit\t");       
 
+        terminal_setCursorPos(0, 25);
+        const struct time *t = time_getTime();
+        time_format(t, buf);
+        terminal_printf(buf);
+        
+        terminal_setCursorPos(0, 35);
+        time_format(control_getTargetTime(), buf);
+        terminal_printf(buf);
+
+        terminal_setCursorPos(0, 45);
+        control_getStateName(buf);
+        terminal_printf("%s", buf);
+
+        terminal_setCursorPos(4, 0);
         uint8_t press_number;
         
         uint8_t total_presses_count = press_getTotalPressesCount();
         for(press_number = 0; press_number < total_presses_count; press_number++) {
             const struct button_press *press = press_getSortedPress(press_number);
-            terminal_printf("%u\t", press_number + 1);
+            terminal_printf("%2u\t", press_number + 1);
             terminal_showTime(press);
         }
     }

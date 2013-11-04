@@ -32,8 +32,6 @@
 void terminal_handler_init(void)
 {
     uart1_init(UART_BAUD_SELECT(UART_BAUDRATE, F_CPU));
-    terminal_reset();
-    terminal_setCursorMode(false);
 }
 
 void terminal_puts(char *s)
@@ -60,13 +58,13 @@ void terminal_reset(void)
 {
 	// initializes terminal to "power-on" settings
 	// ESC c
-	terminal_puts("\x1B\x63");
+	terminal_printf("\x1B\x63");
 }
 
 void terminal_clearScreen(void)
 {
 	// ESC [ 2 J
-	terminal_puts("\x1B[2J");
+	terminal_printf("\x1B[2J");
 }
 
 void terminal_setAttr(uint8_t attr)
