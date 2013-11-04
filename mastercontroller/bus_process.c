@@ -53,6 +53,7 @@ void bus_send(uint8_t address, uint8_t cmd,
 {
     packet_t p;
     p.cmd = cmd;
+    memset(p.data, 0, sizeof(p.data));
     memcpy(p.data, data, len);
     packet_setCRC(&p);
     bus_sendFrame(address, (uint8_t *)&p, sizeof(p));

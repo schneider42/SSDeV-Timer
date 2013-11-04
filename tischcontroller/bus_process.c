@@ -55,6 +55,7 @@ void bus_reply(uint8_t cmd, uint8_t *data, uint8_t len)
 {
     packet_t p;
     p.cmd = cmd;
+    memset(p.data, 0, sizeof(p.data));
     memcpy(p.data, data, len);
     packet_setCRC(&p);
     bus_sendFrame(NODE_ADDRESS, (uint8_t *)&p, sizeof(p));
