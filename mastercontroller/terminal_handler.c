@@ -29,6 +29,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define IF_DEBUG_RETURN     {if(debug) return;}
+bool debug = false;
+
 void terminal_handler_init(void)
 {
     uart1_init(UART_BAUD_SELECT(UART_BAUDRATE, F_CPU));
@@ -56,6 +59,7 @@ void terminal_printf(char *fmt, ...)
 
 void terminal_reset(void)
 {
+    IF_DEBUG_RETURN;
 	// initializes terminal to "power-on" settings
 	// ESC c
 	terminal_printf("\x1B\x63");
@@ -63,18 +67,21 @@ void terminal_reset(void)
 
 void terminal_clearScreen(void)
 {
+    IF_DEBUG_RETURN;
 	// ESC [ 2 J
 	terminal_printf("\x1B[2J");
 }
 
 void terminal_setAttr(uint8_t attr)
 {
+    IF_DEBUG_RETURN;
 	// ESC [ Ps m
 	terminal_printf("\x1B[%dm",attr);
 }
 
 void terminal_setCursorMode(bool visible)
 {
+    IF_DEBUG_RETURN;
 	if(visible) {
 		// ESC [ ? 25 h
 		terminal_printf("\x1B[?25h");
@@ -86,7 +93,35 @@ void terminal_setCursorMode(bool visible)
 
 void terminal_setCursorPos(uint8_t line, uint8_t col)
 {
+    IF_DEBUG_RETURN;
 	// ESC [ Pl ; Pc H
 	terminal_printf("\x1B[%d;%dH",line,col);
+}
+
+void terminal_debug(char *fmt, ...)
+{
+    if(!debug) {
+        return;
+    }
+    char buffer[128];
+    va_list myargs;
+    va_start(myargs, fmt);
+    vsprintf(buffer, fmt, myargs);
+    terminal_puts(buffer);
+    va_end(myargs);
+}
+
+
+void terminal_dumpData(uint8_t *data, uint8_t len)
+{
+    bool first = true;
+    while(len--) {
+        if(first) {
+            terminal_debug("%02x", *data++);
+            first = false;
+        } else {
+            terminal_debug(" %02x", *data++);
+        }
+    }
 }
 

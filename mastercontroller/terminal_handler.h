@@ -46,4 +46,7 @@ void terminal_setAttr(uint8_t attr);
 void terminal_setCursorMode(bool visible);
 void terminal_setCursorPos(uint8_t line, uint8_t col);
 
+void terminal_debug(char *fmt, ...);
+void terminal_dumpData(uint8_t *data, uint8_t len);
+
 #endif
