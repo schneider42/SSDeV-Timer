@@ -4,9 +4,9 @@
 #include <stdint.h>
 
 struct button_press {
-    uint32_t timestamp;
-    uint8_t button;
-    uint8_t table;
+    uint32_t timestamp:24;
+    uint8_t button:4;
+    uint8_t table:4;
 }__attribute__((packed));
 
 #define BUTTONS_COUNT 15

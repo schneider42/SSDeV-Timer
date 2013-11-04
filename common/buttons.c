@@ -17,7 +17,7 @@ struct button {
     uint8_t deadtime;
     bool pressed;
     bool changed;
-};
+} __attribute__((packed));
 
 struct button buttons[] = {
     {'C', 0}, {'C', 1}, {'C', 6}, {'C', 7},
@@ -179,12 +179,4 @@ void buttons_tick(void)
         sei();
     }
 }
-
-
-
-
-
-
-
-
 
