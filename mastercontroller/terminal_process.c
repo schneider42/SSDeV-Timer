@@ -78,10 +78,18 @@ void terminal_tick(void)
         uint8_t press_number;
         
         uint8_t total_presses_count = press_getTotalPressesCount();
+        uint8_t i = 0;
+        uint8_t j = 0;
         for(press_number = 0; press_number < total_presses_count; press_number++) {
+            terminal_setCursorPos(4 + i, j * 40);
             const struct button_press *press = press_getSortedPress(press_number);
             terminal_printf("%2u\t", press_number + 1);
             terminal_showTime(press);
+            i++;
+            if(i > 29) {
+                i = 0;
+                j++;
+            }
         }
     }
 }
